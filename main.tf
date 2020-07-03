@@ -76,3 +76,29 @@ resource "aws_cloudwatch_log_group" "log_group_autospotting" {
   retention_in_days = 7
 }
 
+# Elastic Beanstalk policy
+
+data "aws_iam_policy_document" "beanstalk" {
+  statement {
+    actions = [
+      "cloudformation:DescribeStackResource",
+      "cloudformation:DescribeStackResources",
+      "cloudformation:SignalResource",
+      "cloudformation:RegisterListener",
+      "cloudformation:GetListenerCredentials"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "beanstalk_policy" {
+  name   = "elastic_beanstalk_iam_policy_for_${module.label.id}"
+  policy = data.aws_iam_policy_document.beanstalk.json
+}
+
+# Regional resources that trigger the main Lambda function
+
+module "regional" {
+  source                  = "./modules/regional"
+  autospotting_lambda_arn = module.aws_lambda_function.arn
+}
