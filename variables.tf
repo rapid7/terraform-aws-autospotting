@@ -9,7 +9,50 @@ Example: 't2.*,m4.large'
 Using the 'current' magic value will only allow the same type as the
 on-demand instances set in the group's launch configuration.
 EOF
-  default = ""
+  default     = ""
+}
+
+
+variable "autospotting_cron_schedule_state" {
+  description = <<EOF
+Controls whether or not to run AutoSpotting within a time interval
+given in the 'autospotting_cron_schedule' parameter. Setting this to 'off'
+would make it run only outside the defined interval. This is a global value
+that can be overridden on a per-AutoScaling-group basis using the
+'autospotting_cron_schedule_state' tag set on the AutoScaling group
+
+Example: 'off'
+EOF
+  default     = "on"
+}
+
+variable "autospotting_cron_schedule" {
+  description = <<EOF
+Restrict AutoSpotting to run within a time interval given as a
+simplified cron-like rule format restricted to hours and days of week.
+
+Example: '9-18 1-5' would run it during the work-week and only within
+the usual 9-18 office hours.
+
+This is a global value that can be
+overridden on a per-group basis using the 'autospotting_cron_schedule'
+tag set on the AutoScaling group. The default value '* *' makes it run
+at all times.
+EOF
+  default     = "* *"
+}
+
+variable "autospotting_cron_timezone" {
+  description = <<EOF
+Sets the timezone in which to check the CronSchedule.
+
+Example: If the timezone is set to 'UTC' and the CronSchedule is '9-18 1-5'
+ it would start the interval at 9AM UTC, with the timezone set to 'Europe/London'
+it would start the interval at 9AM BST (10am UTC) or 9AM GMT (9AM UTC)
+depending on daylight savings.
+
+EOF
+  default     = "UTC"
 }
 
 variable "autospotting_disallowed_instance_types" {
@@ -19,7 +62,7 @@ in case you want to exclude specific types (also support globs).
 
 Example: 't2.*,m4.large'
 EOF
-  default = ""
+  default     = ""
 }
 
 variable "autospotting_instance_termination_method" {
@@ -27,22 +70,38 @@ variable "autospotting_instance_termination_method" {
 Instance termination method. Must be one of 'autoscaling' (default) or
 'detach' (compatibility mode, not recommended).
 EOF
-  default = "autoscaling"
+  default     = "autoscaling"
 }
 
 variable "autospotting_min_on_demand_number" {
   description = "Minimum on-demand instances to keep in absolute value"
-  default     = "0"
+  type        = number
+  default     = 0
 }
 
 variable "autospotting_min_on_demand_percentage" {
   description = "Minimum on-demand instances to keep in percentage"
+  type        = number
   default     = "0.0"
 }
 
 variable "autospotting_on_demand_price_multiplier" {
   description = "Multiplier for the on-demand price"
+  type        = number
   default     = "1.0"
+}
+
+variable "autospotting_patch_beanswalk_userdata" {
+  description = <<EOF
+Controls whether AutoSpotting patches Elastic Beanstalk UserData
+        scripts to use the instance role when calling CloudFormation helpers
+        instead of the standard CloudFormation authentication method.
+        After creating this CloudFormation stack, you must add the
+        AutoSpotting's ElasticBeanstalk managed policy to your Beanstalk
+        instance profile/role if you turn this option to true
+EOF
+  type        = bool
+  default     = false
 }
 
 variable "autospotting_spot_product_description" {
@@ -54,12 +113,36 @@ Valid choices
 - Linux/UNIX | SUSE Linux | Windows
 - Linux/UNIX (Amazon VPC) | SUSE Linux (Amazon VPC) | Windows (Amazon VPC)
 EOF
-  default = "Linux/UNIX (Amazon VPC)"
+  default     = "Linux/UNIX (Amazon VPC)"
 }
+
+variable "autospotting_spot_product_premium" {
+
+  description = <<EOF
+The Product Premium hourly charge to apply to the on demand price to improve spot
+selection and savings calculations when using a premium instance type
+such as RHEL.
+EOF
+  type        = number
+  default     = 0
+}
+
 
 variable "autospotting_spot_price_buffer_percentage" {
   description = "Percentage above the current spot price to place the bid"
   default     = "10.0"
+}
+
+variable "autospotting_termination_notification_action" {
+  description = <<EOF
+Action to do when receiving a Spot Instance Termination Notification.
+Must be one of 'auto' (terminate if lifecycle hook is defined, or else
+detach) [default], 'terminate' (lifecycle hook triggered), 'detach'
+(lifecycle hook not triggered)
+
+Allowed values: auto | detach | terminate
+EOF
+  default     = "auto"
 }
 
 variable "autospotting_bidding_policy" {
@@ -69,7 +152,7 @@ variable "autospotting_bidding_policy" {
 
 variable "autospotting_regions_enabled" {
   description = "Regions in which autospotting is enabled"
-  default     = ""
+  default     = []
 }
 
 variable "autospotting_tag_filters" {
@@ -82,7 +165,7 @@ mode.
 You can set this to many tags, for example:
 spot-enabled=true,Environment=dev,Team=vision
 EOF
-  default = ""
+  default     = ""
 }
 
 variable "autospotting_tag_filtering_mode" {
@@ -91,7 +174,7 @@ Controls the tag-based ASG filter. Supported values: 'opt-in' or 'opt-out'.
 Defaults to opt-in mode, in which it only acts against the tagged groups. In
 opt-out mode it works against all groups except for the tagged ones.
 EOF
-  default = "opt-in"
+  default     = "opt-in"
 }
 
 variable "autospotting_license" {
@@ -116,8 +199,13 @@ variable "lambda_s3_bucket" {
 }
 
 variable "lambda_s3_key" {
-  description = "Key in S3 under which the archive is stored"
+  description = "Key in S3 under which the archive of the main Lambda function is stored"
   default     = "nightly/lambda.zip"
+}
+
+variable "lambda_manage_asg_s3_key" {
+  description = "Key in S3 under which the archive of the manage-asg Lambda function is stored"
+  default     = "nightly/manage_asg.zip"
 }
 
 variable "lambda_runtime" {
@@ -142,7 +230,7 @@ variable "lambda_run_frequency" {
 
 variable "lambda_tags" {
   description = "Tags to be applied to the Lambda function"
-  default     = {
+  default = {
     # You can add more values below
     Name = "autospotting"
   }
@@ -177,41 +265,4 @@ variable "label_context" {
     additional_tag_map  = {}
     regex_replace_chars = ""
   }
-}
-
-variable "label_namespace" {
-  description = "Namespace, which could be your organization name or abbreviation"
-  default     = ""
-}
-
-variable "label_environment" {
-  description = "Environment, e.g. 'prod', 'staging', 'dev', 'pre-prod', 'UAT'"
-  default     = ""
-}
-
-variable "label_stage" {
-  description = "Stage, e.g. 'prod', 'staging', 'dev', OR 'source', 'build', 'test', 'deploy', 'release'"
-  default     = ""
-}
-
-variable "label_name" {
-  description = "Solution name, e.g. 'autospotting' or 'autospotting-storage-optimized'"
-  default     = "autospotting"
-}
-
-variable "label_attributes" {
-  type        = list(string)
-  description = "Additional attributes (e.g. 1)"
-  default     = []
-}
-
-variable "label_tags" {
-  description = "Additional tags (e.g. map('BusinessUnit','XYZ')"
-  type        = map(string)
-  default     = {}
-}
-
-variable "label_delimiter" {
-  description = "Delimiter to be used between namespace, environment, stage, name and attributes"
-  default     = "-"
 }

@@ -1,24 +1,37 @@
 module "label" {
-  source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=0.18.0"
+  source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=0.21.0"
   context = var.label_context
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "${module.label.id}-iam_for_lambda"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
+data "aws_iam_policy_document" "lambda_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
     }
-  ]
+  }
 }
-EOF
+
+resource "aws_iam_role" "regional_role" {
+  name               = "iam_role_for_regional_regional_lambda-${module.label.id}"
+  assume_role_policy = data.aws_iam_policy_document.lambda_policy.json
+}
+
+data "aws_iam_policy_document" "regional_lambda_policy" {
+  statement {
+    actions = [
+      "lambda:InvokeFunction",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "regional_lambda_policy" {
+  name   = "policy_for_${module.label.id}"
+  role   = aws_iam_role.regional_role.id
+  policy = data.aws_iam_policy_document.regional_lambda_policy.json
 }
