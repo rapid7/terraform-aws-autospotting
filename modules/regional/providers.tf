@@ -2,16 +2,6 @@
 # To update it just execute "terraform apply" again.
 
 provider "aws" {
-  alias  = "af-south-1"
-  region = "af-south-1"
-}
-
-provider "aws" {
-  alias  = "ap-east-1"
-  region = "ap-east-1"
-}
-
-provider "aws" {
   alias  = "ap-northeast-1"
   region = "ap-northeast-1"
 }
@@ -52,11 +42,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "eu-south-1"
-  region = "eu-south-1"
-}
-
-provider "aws" {
   alias  = "eu-west-1"
   region = "eu-west-1"
 }
@@ -69,11 +54,6 @@ provider "aws" {
 provider "aws" {
   alias  = "eu-west-3"
   region = "eu-west-3"
-}
-
-provider "aws" {
-  alias  = "me-south-1"
-  region = "me-south-1"
 }
 
 provider "aws" {

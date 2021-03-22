@@ -3,12 +3,9 @@ data "aws_regions" "current" {
 }
 
 locals {
-  all_regions         = data.aws_regions.current.names
-  unsupported_regions = ["ap-northeast-3"] # These regions currently throw an error when attempting to use them.
-
-  all_usable_regions = setsubtract(local.all_regions, local.unsupported_regions)
+  all_regions        = data.aws_regions.current.names
+  all_usable_regions = setsubtract(local.all_regions, var.unsupported_regions)
 }
-
 
 resource "local_file" "providers_tf" {
   content  = templatefile("${path.module}/providers.tmpl", { regions = local.all_usable_regions })

@@ -8,10 +8,8 @@ data "aws_regions" "current" {
 }
 
 locals {
-  all_regions         = data.aws_regions.current.names
-  unsupported_regions = ["ap-northeast-3"] # These regions currently throw an error when attempting to use them. This is also set in modules/regional/generate_regional_code.tf
-
-  all_usable_regions = setsubtract(local.all_regions, local.unsupported_regions)
+  all_regions        = data.aws_regions.current.names
+  all_usable_regions = setsubtract(local.all_regions, var.unsupported_regions)
   regions            = var.autospotting_regions_enabled == [] ? local.all_usable_regions : var.autospotting_regions_enabled
 }
 
@@ -60,6 +58,7 @@ module "regional" {
   autospotting_lambda_arn = module.aws_lambda_function.arn
   label_context           = module.label.context
   regions                 = local.regions
+  unsupported_regions     = var.unsupported_regions
 }
 
 resource "aws_lambda_permission" "cloudwatch_events_permission" {
