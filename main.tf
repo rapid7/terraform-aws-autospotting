@@ -25,11 +25,12 @@ module "aws_lambda_function" {
   lambda_zipname           = var.lambda_zipname
   lambda_s3_bucket         = var.lambda_s3_bucket
   lambda_s3_key            = var.lambda_s3_key
-  lambda_manage_asg_s3_key = var.lambda_manage_asg_s3_key
   lambda_runtime           = var.lambda_runtime
   lambda_timeout           = var.lambda_timeout
   lambda_memory_size       = var.lambda_memory_size
   lambda_tags              = var.lambda_tags
+
+  sqs_fifo_queue_name = "${module.label.id}.fifo"
 
   autospotting_allowed_instance_types          = var.autospotting_allowed_instance_types
   autospotting_bidding_policy                  = var.autospotting_bidding_policy

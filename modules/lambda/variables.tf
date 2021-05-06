@@ -10,11 +10,11 @@ variable "lambda_s3_key" {
   default = null
 }
 
-variable "lambda_manage_asg_s3_key" {}
-
 variable "lambda_runtime" {}
 variable "lambda_timeout" {}
 variable "lambda_memory_size" {}
+
+variable "sqs_fifo_queue_name" {}
 
 variable "autospotting_allowed_instance_types" {}
 variable "autospotting_bidding_policy" {}
@@ -35,6 +35,7 @@ variable "autospotting_spot_product_premium" {}
 variable "autospotting_tag_filtering_mode" {}
 variable "autospotting_tag_filters" {}
 variable "autospotting_termination_notification_action" {}
+
 
 variable "lambda_tags" {
   description = "Tags to be applied to the Lambda function"
