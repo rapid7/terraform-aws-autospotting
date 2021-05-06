@@ -34,7 +34,7 @@ resource "aws_lambda_function" "autospotting" {
       SPOT_PRICE_BUFFER_PERCENTAGE    = var.autospotting_spot_price_buffer_percentage
       SPOT_PRODUCT_DESCRIPTION        = var.autospotting_spot_product_description
       SPOT_PRODUCT_PREMIUM            = var.autospotting_spot_product_premium
-      SQS_QUEUE_URL = aws_sqs_queue.autospotting_fifo_queue.id
+      SQS_QUEUE_URL                   = aws_sqs_queue.autospotting_fifo_queue.id
       TAG_FILTERING_MODE              = var.autospotting_tag_filtering_mode
       TAG_FILTERS                     = var.autospotting_tag_filters
       TERMINATION_NOTIFICATION_ACTION = var.autospotting_termination_notification_action
@@ -95,12 +95,12 @@ data "aws_iam_policy_document" "autospotting_policy" {
     resources = ["*"]
   }
   statement {
-    actions   = [
+    actions = [
       "sqs:ReceiveMessage",
       "sqs:SendMessage",
       "sqs:DeleteMessage",
       "sqs:GetQueueAttributes",
-      ]
+    ]
     resources = [aws_sqs_queue.autospotting_fifo_queue.arn]
   }
 }
@@ -112,15 +112,15 @@ resource "aws_iam_role_policy" "autospotting_policy" {
 }
 
 resource "aws_sqs_queue" "autospotting_fifo_queue" {
-  name = var.sqs_fifo_queue_name
+  name                        = var.sqs_fifo_queue_name
   content_based_deduplication = true
-  fifo_queue = true
-  message_retention_seconds = 600
-  visibility_timeout_seconds = 300
+  fifo_queue                  = true
+  message_retention_seconds   = 600
+  visibility_timeout_seconds  = 300
 }
 
 resource "aws_lambda_event_source_mapping" "autospotting_lambda_event_source_mapping" {
   event_source_arn = aws_sqs_queue.autospotting_fifo_queue.arn
   function_name    = aws_lambda_function.autospotting.arn
-  depends_on = [aws_iam_role_policy.autospotting_policy]
+  depends_on       = [aws_iam_role_policy.autospotting_policy]
 }
