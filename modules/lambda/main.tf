@@ -18,26 +18,28 @@ resource "aws_lambda_function" "autospotting" {
 
   environment {
     variables = {
-      ALLOWED_INSTANCE_TYPES          = var.autospotting_allowed_instance_types
-      BIDDING_POLICY                  = var.autospotting_bidding_policy
-      CRON_SCHEDULE                   = var.autospotting_cron_schedule
-      CRON_SCHEDULE_STATE             = var.autospotting_cron_schedule_state
-      CRON_TIMEZONE                   = var.autospotting_cron_timezone
-      DISALLOWED_INSTANCE_TYPES       = var.autospotting_disallowed_instance_types
-      INSTANCE_TERMINATION_METHOD     = var.autospotting_instance_termination_method
-      LICENSE                         = var.autospotting_license
-      MIN_ON_DEMAND_NUMBER            = var.autospotting_min_on_demand_number
-      MIN_ON_DEMAND_PERCENTAGE        = var.autospotting_min_on_demand_percentage
-      ON_DEMAND_PRICE_MULTIPLIER      = var.autospotting_on_demand_price_multiplier
-      PATCH_BEANSTALK_USERDATA        = var.autospotting_patch_beanswalk_userdata
-      REGIONS                         = join(",", var.autospotting_regions_enabled)
-      SPOT_PRICE_BUFFER_PERCENTAGE    = var.autospotting_spot_price_buffer_percentage
-      SPOT_PRODUCT_DESCRIPTION        = var.autospotting_spot_product_description
-      SPOT_PRODUCT_PREMIUM            = var.autospotting_spot_product_premium
-      SQS_QUEUE_URL                   = aws_sqs_queue.autospotting_fifo_queue.id
-      TAG_FILTERING_MODE              = var.autospotting_tag_filtering_mode
-      TAG_FILTERS                     = var.autospotting_tag_filters
-      TERMINATION_NOTIFICATION_ACTION = var.autospotting_termination_notification_action
+      ALLOWED_INSTANCE_TYPES                   = var.autospotting_allowed_instance_types
+      BIDDING_POLICY                           = var.autospotting_bidding_policy
+      CRON_SCHEDULE                            = var.autospotting_cron_schedule
+      CRON_SCHEDULE_STATE                      = var.autospotting_cron_schedule_state
+      CRON_TIMEZONE                            = var.autospotting_cron_timezone
+      DISABLE_EVENT_BASED_INSTANCE_REPLACEMENT = var.autospotting_disable_event_based_instance_replacement
+      DISALLOWED_INSTANCE_TYPES                = var.autospotting_disallowed_instance_types
+      EBS_GP2_CONVERSION_THRESHOLD             = var.autospotting_ebs_gp2_conversion_threshold
+      INSTANCE_TERMINATION_METHOD              = var.autospotting_instance_termination_method
+      LICENSE                                  = var.autospotting_license
+      MIN_ON_DEMAND_NUMBER                     = var.autospotting_min_on_demand_number
+      MIN_ON_DEMAND_PERCENTAGE                 = var.autospotting_min_on_demand_percentage
+      ON_DEMAND_PRICE_MULTIPLIER               = var.autospotting_on_demand_price_multiplier
+      PATCH_BEANSTALK_USERDATA                 = var.autospotting_patch_beanswalk_userdata
+      REGIONS                                  = join(",", var.autospotting_regions_enabled)
+      SPOT_PRICE_BUFFER_PERCENTAGE             = var.autospotting_spot_price_buffer_percentage
+      SPOT_PRODUCT_DESCRIPTION                 = var.autospotting_spot_product_description
+      SPOT_PRODUCT_PREMIUM                     = var.autospotting_spot_product_premium
+      SQS_QUEUE_URL                            = aws_sqs_queue.autospotting_fifo_queue.id
+      TAG_FILTERING_MODE                       = var.autospotting_tag_filtering_mode
+      TAG_FILTERS                              = var.autospotting_tag_filters
+      TERMINATION_NOTIFICATION_ACTION          = var.autospotting_termination_notification_action
     }
   }
 }

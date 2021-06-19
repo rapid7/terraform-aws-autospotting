@@ -55,6 +55,13 @@ EOF
   default     = "UTC"
 }
 
+variable "autospotting_disable_event_based_instance_replacement" {
+  description = <<EOF
+  Disables the event based instance replacement, forcing AutoSpotting to run in legacy cron mode.
+  EOF
+  default     = "false"
+}
+
 variable "autospotting_disallowed_instance_types" {
   description = <<EOF
 Comma separated list of disallowed instance types for spot requests,
@@ -63,6 +70,17 @@ in case you want to exclude specific types (also support globs).
 Example: 't2.*,m4.large'
 EOF
   default     = ""
+}
+
+variable "autospotting_ebs_gp2_conversion_threshold" {
+  description = <<EOF
+  The EBS volume size below which to automatically replace GP2 EBS volumes
+        to the newer GP3 volume type, that's 20% cheaper and more performant than
+        GP2 for smaller sizes, but it's not getting more performant wth size as
+        GP2 does. Over 170 GB GP2 gets better throughput, and at 1TB GP2 also has
+        better IOPS than a baseline GP3 volume.
+  EOF
+  default     = 170
 }
 
 variable "autospotting_instance_termination_method" {

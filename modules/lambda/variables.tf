@@ -21,7 +21,9 @@ variable "autospotting_bidding_policy" {}
 variable "autospotting_cron_schedule_state" {}
 variable "autospotting_cron_schedule" {}
 variable "autospotting_cron_timezone" {}
+variable "autospotting_disable_event_based_instance_replacement" {}
 variable "autospotting_disallowed_instance_types" {}
+variable "autospotting_ebs_gp2_conversion_threshold" {}
 variable "autospotting_instance_termination_method" {}
 variable "autospotting_license" {}
 variable "autospotting_min_on_demand_number" {}
