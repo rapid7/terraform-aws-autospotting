@@ -1,19 +1,8 @@
-variable "lambda_zipname" {
-  default = null
-}
-
-variable "lambda_s3_bucket" {
-  default = null
-}
-
-variable "lambda_s3_key" {
-  default = null
-}
-
-variable "lambda_runtime" {}
 variable "lambda_timeout" {}
 variable "lambda_memory_size" {}
-
+variable "lambda_source_ecr" {}
+variable "lambda_source_image" {}
+variable "lambda_source_image_tag" {}
 variable "sqs_fifo_queue_name" {}
 
 variable "autospotting_allowed_instance_types" {}
@@ -37,7 +26,6 @@ variable "autospotting_spot_product_premium" {}
 variable "autospotting_tag_filtering_mode" {}
 variable "autospotting_tag_filters" {}
 variable "autospotting_termination_notification_action" {}
-
 
 variable "lambda_tags" {
   description = "Tags to be applied to the Lambda function"

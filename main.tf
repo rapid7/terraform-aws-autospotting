@@ -22,13 +22,12 @@ module "aws_lambda_function" {
 
   label_context = module.label.context
 
-  lambda_zipname     = var.lambda_zipname
-  lambda_s3_bucket   = var.lambda_s3_bucket
-  lambda_s3_key      = var.lambda_s3_key
-  lambda_runtime     = var.lambda_runtime
-  lambda_timeout     = var.lambda_timeout
-  lambda_memory_size = var.lambda_memory_size
-  lambda_tags        = var.lambda_tags
+  lambda_source_ecr       = var.lambda_source_ecr
+  lambda_source_image     = var.lambda_source_image
+  lambda_source_image_tag = var.lambda_source_image_tag
+  lambda_timeout          = var.lambda_timeout
+  lambda_memory_size      = var.lambda_memory_size
+  lambda_tags             = var.lambda_tags
 
   sqs_fifo_queue_name = "${module.label.id}.fifo"
 

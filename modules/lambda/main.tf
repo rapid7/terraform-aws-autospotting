@@ -1,20 +1,27 @@
+terraform {
+  required_providers {
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 2.0"
+    }
+  }
+}
+
 module "label" {
   source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=0.21.0"
   context = var.label_context
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_lambda_function" "autospotting" {
-  function_name    = "autospotting-lambda-${module.label.id}"
-  filename         = var.lambda_zipname
-  source_code_hash = var.lambda_zipname == null ? null : filebase64sha256(var.lambda_zipname)
-  s3_bucket        = var.lambda_zipname == null ? var.lambda_s3_bucket : null
-  s3_key           = var.lambda_zipname == null ? var.lambda_s3_key : null
-  role             = aws_iam_role.autospotting_role.arn
-  runtime          = var.lambda_runtime
-  timeout          = var.lambda_timeout
-  handler          = "AutoSpotting"
-  memory_size      = var.lambda_memory_size
-  tags             = merge(var.lambda_tags, module.label.tags)
+  function_name = "autospotting-lambda-${module.label.id}"
+  package_type  = "Image"
+  image_uri     = "${aws_ecr_repository.autospotting.repository_url}:${var.lambda_source_image_tag}"
+  role          = aws_iam_role.autospotting_role.arn
+  timeout       = var.lambda_timeout
+  memory_size   = var.lambda_memory_size
+  tags          = merge(var.lambda_tags, module.label.tags)
 
   environment {
     variables = {
@@ -42,6 +49,9 @@ resource "aws_lambda_function" "autospotting" {
       TERMINATION_NOTIFICATION_ACTION          = var.autospotting_termination_notification_action
     }
   }
+  depends_on = [
+    docker_registry_image.destination,
+  ]
 }
 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -77,6 +87,8 @@ data "aws_iam_policy_document" "autospotting_policy" {
       "autoscaling:SuspendProcesses",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
       "autoscaling:UpdateAutoScalingGroup",
+      "aws-marketplace:MeterUsage",
+      "aws-marketplace:RegisterUsage",
       "cloudformation:Describe*",
       "ec2:CreateTags",
       "ec2:DeleteTags",
@@ -105,11 +117,24 @@ data "aws_iam_policy_document" "autospotting_policy" {
     ]
     resources = [aws_sqs_queue.autospotting_fifo_queue.arn]
   }
+  statement {
+    actions = [
+      "ssm:GetParameter",
+      "ssm:PutParameter",
+    ]
+    resources = ["arn:aws:ssm:us-east-1:${data.aws_caller_identity.current.account_id}:parameter/autospotting-metering"]
+  }
 }
 
-resource "aws_iam_role_policy" "autospotting_policy" {
-  name   = "policy_for_${module.label.id}"
+resource "aws_iam_role_policy" "autospotting_policy_lambda" {
+  name   = "policy_for_lambda_${module.label.id}"
   role   = aws_iam_role.autospotting_role.id
+  policy = data.aws_iam_policy_document.autospotting_policy.json
+}
+
+resource "aws_iam_role_policy" "autospotting_policy_fargate" {
+  name   = "policy_for_fargate_${module.label.id}"
+  role   = module.ecs-task-definition.task_role_id
   policy = data.aws_iam_policy_document.autospotting_policy.json
 }
 
@@ -124,5 +149,5 @@ resource "aws_sqs_queue" "autospotting_fifo_queue" {
 resource "aws_lambda_event_source_mapping" "autospotting_lambda_event_source_mapping" {
   event_source_arn = aws_sqs_queue.autospotting_fifo_queue.arn
   function_name    = aws_lambda_function.autospotting.arn
-  depends_on       = [aws_iam_role_policy.autospotting_policy]
+  depends_on       = [aws_iam_role_policy.autospotting_policy_lambda]
 }

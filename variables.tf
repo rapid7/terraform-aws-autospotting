@@ -211,25 +211,28 @@ variable "lambda_zipname" {
   default     = null
 }
 
-variable "lambda_s3_bucket" {
-  description = "Bucket which the archive is stored in"
-  default     = "cloudprowess"
+variable "lambda_source_ecr" {
+  description = <<EOF
+  ECR repository that stores the AutoSpotting Docker image used by
+  Lambda. The default value is using the AWS Marketplace ECR repository
+  and only works if you purchased AutoSpotting through the AWS
+  Marketplace. If you built it yourself, you need to override this value
+  with the URL of your own ECR repository that contains the AutoSpotting
+  Docker image.
+  EOF
+  default     = "709825985650.dkr.ecr.us-east-1.amazonaws.com"
 }
 
-variable "lambda_s3_key" {
-  description = "Key in S3 under which the archive of the main Lambda function is stored"
-  default     = "nightly/lambda.zip"
+variable "lambda_source_image" {
+  description = "The Docker image used for the Lambda function"
+  default     = "cloudutil/autospotting"
 }
 
-variable "lambda_manage_asg_s3_key" {
-  description = "Key in S3 under which the archive of the manage-asg Lambda function is stored"
-  default     = "nightly/manage_asg.zip"
+variable "lambda_source_image_tag" {
+  description = "The version of the Docker image used for the Lambda function"
+  default     = "1.0.6"
 }
 
-variable "lambda_runtime" {
-  description = "Environment the lambda function runs in"
-  default     = "go1.x"
-}
 
 variable "lambda_memory_size" {
   description = "Memory size allocated to the lambda run"
