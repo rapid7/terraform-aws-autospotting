@@ -29,7 +29,7 @@ module "aws_lambda_function" {
   lambda_memory_size      = var.lambda_memory_size
   lambda_tags             = var.lambda_tags
 
-  sqs_fifo_queue_name = "${module.label.id}.fifo"
+  sqs_fifo_queue_name = "module.label.id.fifo"
 
   autospotting_allowed_instance_types                   = var.autospotting_allowed_instance_types
   autospotting_bidding_policy                           = var.autospotting_bidding_policy
