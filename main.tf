@@ -1,5 +1,5 @@
 module "label" {
-  source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=0.21.0"
+  source  = "git::https://github.com/cloudposse/terraform-null-label.git?ref=0.23.0"
   context = module.this
   enabled = true
 }
